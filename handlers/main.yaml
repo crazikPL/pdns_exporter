@@ -1,0 +1,19 @@
+---
+# handlers file for pdns_exporter
+
+- name: restart powerdns_exporter
+  systemd:
+    name: powerdns_exporter
+    state: restarted
+    daemon_reload: yes
+  tags:
+    - prometheus
+    - pdns_exporter
+
+- name: systemd reload
+  systemd:
+    daemon_reload: yes
+  tags:
+    - prometheus
+    - pdns_exporter
+...

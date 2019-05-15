@@ -1,0 +1,83 @@
+---
+- name: set internal variable platform-suffix for convenience
+  set_fact:
+    prometheus_platform_suffix: "linux-amd64"
+  when: ansible_architecture == "x86_64"
+
+- name: set internal variables for convenience
+  set_fact:
+    prometheus_pdns_exporter_subdir: "{{ prometheus_pdns_exporter_install_path }}"
+
+- name: set internal variables for convenience
+  set_fact:
+    prometheus_pdns_exporter_daemon_dir: "{{ prometheus_pdns_exporter_subdir }}"
+
+- name: set download url for versions
+  set_fact:
+    prometheus_pdns_exporter_bin_url: "https://github.com/tbaczynski/powerdns_exporter/releases/download/v{{ prometheus_pdns_exporter_version }}/powerdns_exporter-{{ prometheus_pdns_exporter_version }}.{{ prometheus_platform_suffix }}.tar.gz"  # noqa 204
+
+- name: create Prometheus group
+  group:
+    name: '{{ prometheus_pdns_exporter_group }}'
+    state: present
+
+- name: create Prometheus user
+  user:
+    name: "{{ prometheus_pdns_exporter_user }}"
+    group: "{{ prometheus_pdns_exporter_group }}"
+    createhome: no
+    shell: /sbin/nologin
+    comment: "Prometheus User"
+    state: present
+
+- name: mkdir for prometheus and pdns_exporter
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_pdns_exporter_user }}"
+    group: "{{ prometheus_pdns_exporter_group }}"
+    mode: 0750
+  loop:
+    - "{{ prometheus_pdns_exporter_install_path }}"
+    - "{{ prometheus_pdns_exporter_config_path }}"
+
+- name: download and untar pdns_exporter tarball
+  unarchive:
+    src: "{{ prometheus_pdns_exporter_bin_url }}"
+    dest: "{{ prometheus_pdns_exporter_install_path }}"
+    owner: '{{ prometheus_pdns_exporter_user }}'
+    group: '{{ prometheus_pdns_exporter_group }}'
+    copy: no
+    mode: 0755
+    creates: '{{ prometheus_pdns_exporter_subdir }}'
+  notify:
+    - restart powerdns_exporter
+
+- name: copy powerdns_exporter systemd profile
+  template:
+    src: 'powerdns_exporter.service.j2'
+    dest: '/lib/systemd/system/powerdns_exporter.service'
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - systemd reload
+    - restart powerdns_exporter
+
+- name: copy powerdns_exporter config
+  template:
+    src: 'powerdns_exporter.defaults.j2'
+    dest: '/etc/default/powerdns_exporter'
+    owner: '{{ prometheus_pdns_exporter_user }}'
+    group: '{{ prometheus_pdns_exporter_group }}'
+    mode: 0640
+  notify:
+    - restart powerdns_exporter
+
+- name: powerdns_exporter systemd service enable
+  systemd:
+    name: powerdns_exporter
+    state: started
+    enabled: yes
+
+...

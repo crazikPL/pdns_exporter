@@ -1,0 +1,11 @@
+# Prometheus PowerDNS Exporter defaults
+#
+START=yes
+
+#
+STARTUP_ARGS=' \
+      -api-key {{ prometheus_pdns_exporter_apikey }} \
+      -api-url {{ prometheus_pdns_exporter_apiurl }} \
+      -listen-address {{ prometheus_pdns_exporter_weblisten }} \
+      -metric-path {{ prometheus_pdns_exporter_metricpath }} \
+      '

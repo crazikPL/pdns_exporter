@@ -1,0 +1,15 @@
+---
+
+- name: install prometheus powerdns_exporter
+  include: install.yaml
+  tags:
+    - prometheus
+    - pdns_exporter
+
+- name: ufw | open access to powerdns_exporter
+  include: ufw.yaml
+  when: enable_ufw
+  tags:
+    - prometheus
+    - pdns_exporter
+    - ufw

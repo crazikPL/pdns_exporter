@@ -1,0 +1,19 @@
+[Unit]
+Description=Prometheus Powerdns Exporter
+After=network-online.target
+
+[Service]
+Type=simple
+PIDFile={{ prometheus_pdns_exporter_pid_path }}/powerdns_exporter.pid
+EnvironmentFile=-/etc/default/powerdns_exporter
+User={{ prometheus_pdns_exporter_user }}
+Group={{ prometheus_pdns_exporter_group }}
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ prometheus_pdns_exporter_daemon_dir }}/powerdns_exporter $STARTUP_ARGS
+
+SyslogIdentifier=prometheus-powerdns_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
