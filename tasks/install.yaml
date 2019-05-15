@@ -49,7 +49,7 @@
     group: '{{ prometheus_pdns_exporter_group }}'
     copy: no
     mode: 0755
-    creates: '{{ prometheus_pdns_exporter_subdir }}'
+    creates: '{{ prometheus_pdns_exporter_subdir }}/powerdns_exporter'
   notify:
     - restart powerdns_exporter
 
