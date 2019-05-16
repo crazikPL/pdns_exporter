@@ -6,7 +6,7 @@
 
 - name: set internal variables for convenience
   set_fact:
-    prometheus_pdns_exporter_subdir: "{{ prometheus_pdns_exporter_install_path }}"
+    prometheus_pdns_exporter_subdir: "{{ prometheus_pdns_exporter_install_path }}/powerdns_exporter-{{ prometheus_pdns_exporter_version }}.{{ prometheus_platform_suffix }}"
 
 - name: set internal variables for convenience
   set_fact:
@@ -14,7 +14,7 @@
 
 - name: set download url for versions
   set_fact:
-    prometheus_pdns_exporter_bin_url: "https://github.com/tbaczynski/powerdns_exporter/releases/download/v{{ prometheus_pdns_exporter_version }}/powerdns_exporter-{{ prometheus_pdns_exporter_version }}.{{ prometheus_platform_suffix }}.tar.gz"  # noqa 204
+    prometheus_pdns_exporter_tarball: 'powerdns_exporter-{{ prometheus_pdns_exporter_version }}.{{ prometheus_platform_suffix }}.tar.gz'
 
 - name: create Prometheus group
   group:
@@ -43,13 +43,13 @@
 
 - name: download and untar pdns_exporter tarball
   unarchive:
-    src: "{{ prometheus_pdns_exporter_bin_url }}"
+    src: "{{ prometheus_pdns_exporter_tarball }}"
     dest: "{{ prometheus_pdns_exporter_install_path }}"
     owner: '{{ prometheus_pdns_exporter_user }}'
     group: '{{ prometheus_pdns_exporter_group }}'
-    copy: no
+    copy: yes
     mode: 0755
-    creates: '{{ prometheus_pdns_exporter_subdir }}/powerdns_exporter'
+    creates: '{{ prometheus_pdns_exporter_subdir }}'
   notify:
     - restart powerdns_exporter
 

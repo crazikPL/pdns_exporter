@@ -6,7 +6,10 @@ Install Prometheus PowerDNS_Exporter from github repository
 Requirements
 ------------
 
-nope
+find and put tarball in your local dir, ie:
+```
+files/powerdns_exporter-0.1.2.linux-amd64.tar.gz
+```
 
 Role Variables
 --------------
